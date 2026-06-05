@@ -502,14 +502,21 @@ module fn
 
         sol = solve(prob, Rodas5(), callback = cb)
         
-        plot(sol[dyn.plot,:], xlabel="Time", ylabel="Concentration", label = "Feedback")
+        # Plot FB variable:
+        t_dense = range(dyn.tspan[1], dyn.tspan[2], length=2000)
+        y_dense = sol(t_dense)
+        plot(t_dense, y_dense[dyn.plot, :], xlabel="Time", ylabel="Concentration", label = "Feedback")
 
         mm.localNF(p,SS)      # Adjust parameters for no feedback system
         p_values = collect(values(p))
 
         prob = ODEProblem(mm.nFB, SS, dyn.tspan, p_values)
         sol = solve(prob, Rodas5(), callback = cb)
-        plot!(sol[dyn.plot,:], linestyle = :dash, label = "No Feedback")
+        
+        # Plot FB variable:
+        t_dense = range(dyn.tspan[1], dyn.tspan[2], length=2000)
+        y_dense = sol(t_dense)
+        plot!(t_dense, y_dense[dyn.plot,:], linestyle = :dash, label = "No Feedback")
         savefig(string("./Output/OUT_dynamics_",iARG.mm,"_",iARG.ex,"_",iARG.pp,"_",iARG.ax,".png"))
     end
 
