@@ -494,7 +494,8 @@ module fn
         i = findfirst(isequal(pert.p), keys_list)
 
         prob = ODEProblem(mm.FB, SS, dyn.tspan, p_values)
-
+        
+        # At each 'dosetimes', the perturbation is implemented:
         dosetimes = dyn.pert_time
         affect!(integrator) = integrator.p[i] *= dyn.pert_size
         cb = PresetTimeCallback(dosetimes, affect!)
