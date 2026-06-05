@@ -1,10 +1,10 @@
 
 # --- Main arguments ---
 iARG = (mm = "ATFv1_p01",       # Label for motif file
-        ex = "Test1",            # Label for parameters file
+        ex = "Test1",           # Label for parameters file
         pp = :mY,		# Label for perturbation type
         ax = :mY,               # Label for condition/environment
-        an = "Dynamics"		# Label for analysis type (Explore, Optimize, Dynamics, Curve)
+        an = "Explore"		# Label for analysis type (Explore, Optimize, Dynamics, Curve)
 )
 
 # --- Perturbation details ---
