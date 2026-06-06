@@ -540,6 +540,11 @@ module fn
     function curve(p, u0, mm, pert, iARG)
         ran = 10 .^ range(pert.r[1], pert.r[2], length=pert.coras)
         c = CoRacurve(p, u0, mm, pert)
+        open(string("./Output/OUT_curve_",iARG.mm,"_",iARG.ex,"_",iARG.pp,"_",iARG.ax,".txt"), "w") do io 
+            data = hcat(ran, c[1], c[2], c[3]) 
+            writedlm(io, [["rho" "CoRa" "SSs" "errors"]], '\t') 
+            writedlm(io, data, '\t') 
+        end
         plot(ran, c[1];
             xscale = :log10,
             xlims = (minimum(ran), maximum(ran)),
