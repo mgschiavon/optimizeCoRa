@@ -486,38 +486,53 @@ module fn
 
     function dynamics(mm, u0, p, pert, dyn, iARG)
 
-        p_values = collect(values(p))
+        open(string("./Output/OUT_dynamics_",iARG.mm,"_",iARG.ex,"_",iARG.pp,"_",iARG.ax,".txt"), "w") do io
 
-        SS,_ = fn.find_equilibrium(p, u0, mm.FB)
-        println("Steady state values: ", SS)
-        keys_list = collect(keys(p))
-        i = findfirst(isequal(pert.p), keys_list)
+            p_values = collect(values(p))
 
-        prob = ODEProblem(mm.FB, SS, dyn.tspan, p_values)
-        
-        # At each 'dosetimes', the perturbation is implemented:
-        dosetimes = dyn.pert_time
-        affect!(integrator) = integrator.p[i] *= dyn.pert_size
-        cb = PresetTimeCallback(dosetimes, affect!)
+            SS,_ = fn.find_equilibrium(p, u0, mm.FB)
+            println("Steady state values: ", SS)
+            keys_list = collect(keys(p))
+            i = findfirst(isequal(pert.p), keys_list)
 
-        sol = solve(prob, Rodas5(), callback = cb)
-        
-        # Plot FB variable:
-        t_dense = range(dyn.tspan[1], dyn.tspan[2], length=2000)
-        y_dense = sol(t_dense)
-        plot(t_dense, y_dense[dyn.plot, :], xlabel="Time", ylabel="Concentration", label = "Feedback")
+            prob = ODEProblem(mm.FB, SS, dyn.tspan, p_values)
+            
+            # At each 'dosetimes', the perturbation is implemented:
+            dosetimes = dyn.pert_time
+            affect!(integrator) = integrator.p[i] *= dyn.pert_size
+            cb = PresetTimeCallback(dosetimes, affect!)
 
-        mm.localNF(p,SS)      # Adjust parameters for no feedback system
-        p_values = collect(values(p))
+            # Feedback dynamics:
+            sol = solve(prob, Rodas5(), callback = cb)
+            
+            # Plot FB variable:
+            t_dense = range(dyn.tspan[1], dyn.tspan[2], length=2000)
+            y_dense = sol(t_dense)
+            plot(t_dense, y_dense[dyn.plot, :], xlabel="Time", ylabel="Concentration", label = "Feedback")
+            
+            # Save FB dynamics:
+            Y = Matrix(y_dense)
+            data = hcat(collect(t_dense), Y')
+            writedlm(io, data, '\t')
 
-        prob = ODEProblem(mm.nFB, SS, dyn.tspan, p_values)
-        sol = solve(prob, Rodas5(), callback = cb)
-        
-        # Plot FB variable:
-        t_dense = range(dyn.tspan[1], dyn.tspan[2], length=2000)
-        y_dense = sol(t_dense)
-        plot!(t_dense, y_dense[dyn.plot,:], linestyle = :dash, label = "No Feedback")
-        savefig(string("./Output/OUT_dynamics_",iARG.mm,"_",iARG.ex,"_",iARG.pp,"_",iARG.ax,".png"))
+            # No-feedback dynamics:
+            mm.localNF(p,SS)      # Adjust parameters for no feedback system
+            p_values = collect(values(p))
+
+            prob = ODEProblem(mm.nFB, SS, dyn.tspan, p_values)
+            sol = solve(prob, Rodas5(), callback = cb)
+            
+            # Plot NF variable:
+            t_dense = range(dyn.tspan[1], dyn.tspan[2], length=2000)
+            y_dense = sol(t_dense)
+            plot!(t_dense, y_dense[dyn.plot,:], linestyle = :dash, label = "No Feedback")
+            savefig(string("./Output/OUT_dynamics_",iARG.mm,"_",iARG.ex,"_",iARG.pp,"_",iARG.ax,".png"))
+            
+            # Save NF dynamics:
+            Y = Matrix(y_dense)
+            data = hcat(collect(t_dense), Y')
+            writedlm(io, data, '\t')
+        end
     end
 
 
