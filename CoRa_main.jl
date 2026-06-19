@@ -19,7 +19,7 @@ Settings_file = "ARGS_ATFv1_p01_Test1_Settings.jl"
 include(string("./InputFiles/", Settings_file))
 
 # --- Main functions ---
-fn = include(string("Library/FN_CoRa.jl"))
+include(string("Library/FN_CoRa.jl"))
 
 # --- Model ---
 mm = include(string("Library/Md_",iARG.mm,".jl"))
