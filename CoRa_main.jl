@@ -22,7 +22,7 @@ include(string("./InputFiles/", Settings_file))
 include(string("Library/FN_CoRa.jl"))
 
 # --- Model ---
-mm = include(string("Library/Md_",iARG.mm,".jl"))
+include(string("Library/Md_",iARG.mm,".jl"))
 
 # --- Core parameters ---
 include(string("InputFiles/ARGS_",iARG.mm,"_",iARG.ex,"_Par.jl"))
